@@ -40,13 +40,13 @@ def country_name(country_id):
 # comida baseado no range de valores
 def create_price_tye(price_range):
     if price_range == 1:
-        return "cheap"
+        return "1_acessivel"
     elif price_range == 2:
-        return "normal"
+        return "2_regular"
     elif price_range == 3:
-        return "expensive"
+        return "3_alto"
     else:
-        return "gourmet"
+        return "4_superior"
 ##############################
 
 ### função color_name() cria coluna com o nome das cores baseado em seus códigos
@@ -75,149 +75,6 @@ def rename_columns(dataframe):
     cols_new = list(map(snakecase, cols_old))
     df1.columns = cols_new
     return df1
-##############################
-
-def best_5_rests(df1, coluna):
-    """ Essa função cria um gráfico de barras com 5 restaurantes com a 
-    melhor nota media ou mais avaliações recebidas.
-    coluna = 'aggregate_rating' (nota média) ou 'votes' (avaliações recebidas)
-    Input = Dataframe
-    Output = Gráfico de barras
-    """
-    if coluna == 'aggregate_rating':
-        nozero = (df1['aggregate_rating'] != 0) & (df1['restaurant_name'] != 'tbsp.')
-        op = 'mean'
-        y_name = 'Nota média'
-    else:
-        nozero = ':'
-        op = 'sum'
-        y_name = 'Avaliações recebidas'
-    nozero = (df1[coluna] != 0) & (df1['restaurant_name'] != 'tbsp.')
-    rest_mean_best = df1.loc[nozero, ['restaurant_name', 'country', coluna]].groupby(['restaurant_name', 'country']).agg({coluna: op}).reset_index().sort_values(coluna, ascending=False).round(2)
-    rest_mean_best = rest_mean_best.groupby('country').head(1)
-    rest_mean_best = rest_mean_best.head(5)
-
-    colors = ['#FF0000', '#CC0000', '#990000', '#660000', '#330000']
-
-    fig = px.bar(rest_mean_best, 
-                x='restaurant_name', 
-                y=coluna,
-                title='',
-                labels={'restaurant_name': 'Restaurante', coluna: 'y_name', 'country': 'País'},
-                color='country',
-                color_discrete_sequence=colors)
-    fig.update_layout(
-        xaxis_title='Restaurante',
-        yaxis_title=y_name,
-        xaxis_tickangle=-45,
-        height=600,
-        width=500,
-        plot_bgcolor='rgb(175, 175, 175)',
-        font_color='white')
-    fig.update_traces(hovertemplate='Restaurante: %{x}<br>Valor: %{y}')
-    return fig
-##############################
-
-def pizza_pie_delivery(df1):
-    """ Essa função cria um grafico de pizza com a diferença da média 
-    de avaliações recebidas para restaurantes com x sem delivery.
-    Input = Dataframe
-    Output = Gráfico de pizza pie """
-    online = (df1['has_online_delivery'] == 1) & (df1['is_delivering_now'] ==1)
-    online = df1.loc[online, ['restaurant_name', 'votes']].groupby('restaurant_name').agg({'votes': 'mean'}).reset_index().sort_values('votes', ascending=False)
-    t_votes_online = online['votes'].mean().round(0)
-    offline = (df1['has_online_delivery'] == 0) & (df1['is_delivering_now'] ==0)
-    offline = df1.loc[offline, ['restaurant_name', 'votes']].groupby('restaurant_name').agg({'votes': 'mean'}).reset_index().sort_values('votes', ascending=False)
-    t_votes_offline = offline['votes'].mean().round(0)
-    delivery = {'total_votes': [t_votes_online, t_votes_offline], 'restaurantes': ['Com delivery', 'Sem delivery']}
-
-    fig = go.Figure(data=[go.Pie(labels=delivery['restaurantes'],
-                    values=delivery['total_votes'], pull=[0, 0.1, 0.1])])
-    fig.update_traces(
-    marker=dict(colors=['#FF0000', '#505050'])
-    )
-    return fig
-##############################
-
-def pizza_pie_booking(df1):
-    """ Essa função cria um grafico de pizza com a diferença da média 
-    de avaliações recebidas para restaurantes com x sem reservas.
-    Input = Dataframe
-    Output = Gráfico de pizza pie """
-    booking = df1['has_table_booking'] == 1
-    booking = df1.loc[booking, ['restaurant_name', 'votes']].groupby('restaurant_name').agg({'votes': 'mean'}).reset_index().sort_values('votes', ascending=False)
-    t_votes_booking = booking['votes'].mean().round(0)
-    no_booking = df1['has_table_booking'] == 0
-    no_booking = df1.loc[no_booking, ['restaurant_name', 'votes']].groupby('restaurant_name').agg({'votes': 'mean'}).reset_index().sort_values('votes', ascending=False)
-    t_votes_no_booking = no_booking['votes'].mean().round(0)
-    booking = {'total_votes': [t_votes_booking, t_votes_no_booking], 'restaurantes': ['Com reserva', 'Sem reserva']}
-
-    fig = go.Figure(data=[go.Pie(labels=booking['restaurantes'],
-                    values=booking['total_votes'], pull=[0, 0.1, 0.1])])
-    fig.update_traces(
-    marker=dict(colors=['#FF0000', '#505050'])
-    )
-    return fig
-##############################
-
-def bar_delivery (df1):
-    """ Essa função cria um grafico de barras simples com a diferença da média 
-    de avaliações recebidas para restaurantes com x sem delivery.
-    Input = Dataframe
-    Output = Gráfico de barras simples """
-    online = (df1['has_online_delivery'] == 1) & (df1['is_delivering_now'] ==1)
-    online = df1.loc[online, ['restaurant_name', 'aggregate_rating']].groupby('restaurant_name').agg({'aggregate_rating': 'mean'}).reset_index().sort_values('aggregate_rating', ascending=False)
-    nota_online = online['aggregate_rating'].mean().round(2)
-    offline = (df1['has_online_delivery'] == 0) & (df1['is_delivering_now'] ==0)
-    offline = df1.loc[offline, ['restaurant_name', 'aggregate_rating']].groupby('restaurant_name').agg({'aggregate_rating': 'mean'}).reset_index().sort_values('aggregate_rating', ascending=False)
-    nota_offline = offline['aggregate_rating'].mean().round(2)
-    delivery = {'nota_media': [nota_online, nota_offline], 'restaurantes': ['Com delivery', 'Sem delivery']}
-
-    fig = px.bar(delivery, 
-                x='restaurantes', 
-                y='nota_media',
-                labels={'restaurantes': 'Restaurantes', 'nota_media': 'Nota média'},
-                color_discrete_sequence=['#FF0000'])
-    fig.update_layout(
-        xaxis_title='Restaurantes',
-        yaxis_title='Nota média',
-        xaxis_tickangle=-45,
-        showlegend=False,
-        height=600,
-        width=500,
-        plot_bgcolor='rgb(175, 175, 175)',
-        font_color='white')
-    return fig
-##############################
-
-def bar_reservas (df1):
-    """ Essa função cria um grafico de barras simples com a diferença da 
-    nota média para restaurantes com x sem delivery.
-    Input = Dataframe
-    Output = Gráfico de barras simples """
-    booking = df1['has_table_booking'] == 1
-    booking = df1.loc[booking, ['restaurant_name', 'aggregate_rating']].groupby('restaurant_name').agg({'aggregate_rating': 'mean'}).reset_index().sort_values('aggregate_rating', ascending=False)
-    nota_booking = booking['aggregate_rating'].mean().round(2)
-    no_booking = df1['has_table_booking'] == 0
-    no_booking = df1.loc[no_booking, ['restaurant_name', 'aggregate_rating']].groupby('restaurant_name').agg({'aggregate_rating': 'mean'}).reset_index().sort_values('aggregate_rating', ascending=False)
-    nota_no_booking = no_booking['aggregate_rating'].mean().round(2)
-    bookingt = {'nota_media': [nota_booking, nota_no_booking], 'restaurantes': ['Com reserva', 'Sem reserva']}
-
-    fig = px.bar(bookingt, 
-                x='restaurantes', 
-                y='nota_media',
-                labels={'restaurantes': 'Restaurantes', 'nota_media': 'Nota média'},
-                color_discrete_sequence=['#FF0000'])
-    fig.update_layout(
-        xaxis_title='Restaurantes',
-        yaxis_title='Nota média',
-        xaxis_tickangle=-45,
-        showlegend=False,
-        height=600,
-        width=500,
-        plot_bgcolor='rgb(175, 175, 175)',
-        font_color='white')
-    return fig
 ##############################
 
 ############################################################
@@ -286,46 +143,141 @@ mime='text/csv')
 st.sidebar.markdown(""" --- """)
 st.sidebar.markdown('###### Powered by William Cardoso')
 
-#streamlit run restaurantes.py
-
 ### =================================================== ###
 #                   layout streamlit                      #
 ### =================================================== ###
 
-with st.container():
-        st.markdown('#### Métricas gerais')
-        col1, col2, col3, col4 = st.columns(4, gap='large')
-        with col1:
-            rest_on = df1['restaurant_name'].nunique()
-            col1.metric('Total de restaurantes cadastrados', rest_on)
-        with col2:
-            rest_w_votes = df1.groupby('restaurant_name')['votes'].mean().reset_index()
-            rest_w_votes.columns = ['restaurant_name', 't_votes']
-            rest_w_votes = rest_w_votes.sort_values('t_votes', ascending=False)
-            b_rest_w_votes = rest_w_votes.iloc[0]['restaurant_name']
-            col2.metric('Mais avaliações recebidas', b_rest_w_votes)
-        with col3:
-            nozero = df1['aggregate_rating'] != 0
-            rest_mean_last = df1.loc[nozero, ['restaurant_name', 'aggregate_rating']].groupby('restaurant_name').agg({'aggregate_rating': 'mean'}).reset_index().sort_values('aggregate_rating', ascending=True)
-            rest_mean_last = rest_mean_last.iloc[0]['restaurant_name']
-            col3.metric('Pior nota média', rest_mean_last)
-        with col4:
-            nozero = df1['aggregate_rating'] != 0
-            rest_mean_best = df1.loc[nozero, ['restaurant_name', 'aggregate_rating']].groupby('restaurant_name').agg({'aggregate_rating': 'mean'}).reset_index().sort_values('aggregate_rating', ascending=False)
-            rest_mean_best = rest_mean_best.iloc[0]['restaurant_name']
-            col4.metric('Melhor nota média', rest_mean_best)
-###
-
 tab1, tab2 = st.tabs(
-    ['Gráficos', 'Mapa de geolocalização'])
+    ['Propostas para análises adicionais', 'Gráficos adicionais'])
 
-
-
-with tab1:  # Gráficos
+with tab1:  
     with st.container():
-        st.markdown('#### Gráficos')
+        st.markdown('#### Países')
+        '''
+1. Análise temporal da expansão internacional:
+- Mapear detalhadamente a cronologia de expansão da Zomato além do mercado indiano
+- Identificar padrões de crescimento e velocidade de penetração em novos mercados
+- Avaliar a taxa de sucesso em diferentes regiões geográficas para projetar tendências futuras de expansão
 
+2. Estudo dos fatores de sucesso na Indonésia
+- Investigar as características específicas do mercado gastronômico indonésio
+- Analisar o perfil dos estabelecimentos mais bem avaliados
+- Examinar as políticas de relacionamento com parceiros e estratégias de engajamento com usuários
+- Avaliar aspectos culturais e comportamentais que possam influenciar as avaliações positivas
 
-with tab1:  # Gráficos
+3. Análise comparativa Indonésia-Austrália
+- Identificar padrões comuns entre os mercados que contribuem para o alto desempenho
+- Estudar as práticas operacionais bem-sucedidas que possam ser replicadas em outros mercados
+- Desenvolver um framework de boas práticas baseado nas experiências positivas destes países
+- Elaborar recomendações estratégicas para aprimoramento das operações em outros mercados'''
+    st.markdown(""" --- """)
+
+with tab1:  
     with st.container():
-        st.markdown('#### Gráficos')
+        st.markdown('#### Cidades')
+    '''
+    1. Identificar possíveis barreiras para expansão do serviço de entregas em outras localidades
+
+    2. Estudo da diversidade culinária
+    - Mapear a distribuição de tipos de culinária por região
+    - Analisar a relação entre diversidade culinária e demografia local
+    - Identificar oportunidades de expansão do cardápio em mercados específicos
+
+    3. Aprofundamento do caso Londres
+    - Examinar os fatores que contribuem para o alto desempenho da cidade
+    - Estudar a relação entre diversidade culinária e satisfação dos usuários
+    - Aventar a possibilidade de desenvolvimento de benchmarks baseados no modelo londrino para aplicação em outros mercados urbanos
+    '''
+    st.markdown(""" --- """)
+
+with tab1:  
+    with st.container():
+        st.markdown('#### Restaurantes')
+    '''
+    1. Análise aprofundada do serviço de delivery
+    - Investigar o perfil e motivação dos usuários que mais avaliam restaurantes com delivery
+    - Analisar a relação entre tempo de entrega e satisfação do cliente
+
+    2. Estudo do sistema de reservas
+    - Examinar a correlação entre o sistema de reservas e o ticket médio dos estabelecimentos
+    - Avaliar o impacto do sistema de reservas em diferentes categorias de restaurantes
+    - Identificar fatores que contribuem para a maior satisfação em restaurantes com sistema de reservas
+
+    3. Aprofundamento do caso Domino's Pizza
+    - Realizar um benchmark detalhado das práticas operacionais da rede
+    - Estudar a evolução temporal das avaliações para identificar melhorias implementadas
+    - Investigar a relação entre campanhas promocionais e volume de avaliações
+    - Realizar um planejamento para melhoria na satisfação dos clientes com o restaurante
+    '''
+    st.markdown(""" --- """)
+
+
+def price_rating(df1, coluna):
+    """ Essa função cria um gráfico de barras com os 5 países com o melhor desempenho.
+    coluna = 'aggregate_rating' (nota média) ou 'votes' (média de avaliações)
+    Input = Dataframe
+    Output = Gráfico de barras
+    """
+    price_plus = (df1[['price_tye', coluna]].groupby('price_tye')[coluna].mean().sort_values(ascending=False).reset_index().round(2))
+    if coluna == 'aggregate_rating':
+        y_name = 'Nota média'
+    else:
+        y_name = 'Média de avaliações recebidas por restaurante'
+    fig = px.bar(price_plus, 
+                x='price_tye', 
+                y=coluna,
+                labels={'price_tye': 'País', coluna: y_name})
+    fig.update_traces(marker=dict(color='red'))
+    fig.update_layout(
+        xaxis_title='Países',
+        yaxis_title=y_name,
+        xaxis_tickangle=-45,
+        showlegend=False,
+        height=600,
+        width=500,
+        font_color='white')
+    fig.update_traces(hovertemplate='País: %{x}<br>Média: %{y}')
+    return fig
+##############################
+
+
+with tab2:  
+    with st.container():
+        st.markdown('#### Gráficos adicionais')
+        '''
+A partir das análises realizadas, surgiu uma hipótese para análise e verificou-se a necessidade de analisar os possíveis 
+impactos da categoria de preços dos restaurantes
+em relação as avaliações dos usuários. Para isso, foram realizados os seguintes passos:
+
+Hipótese: a faixa de preço praticada pelo restaurante influencia no desempenho das avaliações?
+- Criação de uma nova coluna no dataframe com categorização de preços baseado no range de valores
+- Tratamento dos dados relacionados as avaliações dos usuários
+- Criação de dois novos gráficos para análise geral da correlação entre preços e avaliações
+
+'''
+    with st.container():
+        col1, col2 = st.columns(2, gap='large')
+        with col1: #grafico de barras 1/2 color = RED
+            st.markdown('##### Média de avaliações recebidas por faixa de preço')
+            fig = price_rating(df1, 'votes')
+            st.plotly_chart(fig)
+        ###
+        with col2: #grafico de barras 1/2 color = RED
+            st.markdown('##### Nota média por faixa de preço')
+            fig = price_rating(df1, 'aggregate_rating')
+            st.plotly_chart(fig)
+        ###
+
+
+    with st.container():# Análise da page
+        expander = st.expander("Análises relevantes e considerações finais")
+        expander.write('''
+            Pode-se afirmar que a maioria dos restaurantes estão nas categorias de preços Regular e Alto, onde os restaurantes que trabalham
+                       com a faixa de preço Alto possuem melhor nota média (4.22) além de receberem um volume muito maior de avaliações. Destaca-se
+                       negativamente a categoria Acessível tanto em quantidade de avaliações recebidas quanto em nota média.
+
+            A partir dessa nova análise gráfica, podemos afirmar que o principal fator de desempenho dos restaurantes é a qualidade de sua comida. Além
+            disso podem ser definidas novas hipóteses para a sequência desse Dashboard, considerando relacionar diversos indicadores com a categorização de preços
+                       para obter respostas aos problemas de negócio da operação Zomato.
+        ''')
+        st.markdown(""" --- """)

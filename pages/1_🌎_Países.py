@@ -103,7 +103,6 @@ def best_5_countries(df1, coluna):
         showlegend=False,
         height=600,
         width=500,
-        plot_bgcolor='rgb(175, 175, 175)',
         font_color='white')
     fig.update_traces(hovertemplate='País: %{x}<br>Média: %{y}')
     return fig
@@ -289,3 +288,19 @@ with st.container():
         fig = best_5_countries(df1, 'aggregate_rating')
         st.plotly_chart(fig, use_container_width=True)
 ###
+
+with st.container():# Análise da page
+    expander = st.expander("Análises relevantes")
+    expander.write('''
+        A análise dos dados revela a significativa dominância da Índia no ecossistema Zomato, liderando em número de restaurantes 
+        cadastrados e apresentando uma cobertura de cidades mais de duas vezes superior aos Estados Unidos, segundo colocado na base de dados. 
+        Ainda assim, embora sendo uma empresa de origem indiana, a Zomato demonstra uma expressiva expansão global, estando presente em todos 
+        os continentes, com a Índia representando 39% das operações totais da companhia.
+
+        Em relação aos indicadores de avaliação, a Indonésia se destaca por apresentar a melhor performance, liderando tanto na quantidade 
+        média de avaliações por restaurante quanto na nota média atribuída pelos usuários. Merece destaque também o desempenho excepcional da Austrália, 
+        que figura entre os cinco melhores países em ambos os indicadores, um resultado notável considerando sua localização geográfica distante dos 
+                   principais mercados da plataforma.
+
+
+    ''')

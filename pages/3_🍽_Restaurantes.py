@@ -112,7 +112,6 @@ def best_5_rests(df1, coluna):
         xaxis_tickangle=-45,
         height=600,
         width=500,
-        plot_bgcolor='rgb(175, 175, 175)',
         font_color='white')
     fig.update_traces(hovertemplate='Restaurante: %{x}<br>Valor: %{y}')
     return fig
@@ -185,7 +184,6 @@ def bar_delivery (df1):
         showlegend=False,
         height=600,
         width=500,
-        plot_bgcolor='rgb(175, 175, 175)',
         font_color='white')
     return fig
 ##############################
@@ -215,7 +213,6 @@ def bar_reservas (df1):
         showlegend=False,
         height=600,
         width=500,
-        plot_bgcolor='rgb(175, 175, 175)',
         font_color='white')
     return fig
 ##############################
@@ -367,6 +364,27 @@ with tab1:  # Gráficos
                 st.plotly_chart(fig)
         ###
 
+with st.container():# Análise da page
+    expander = st.expander("Análises relevantes")
+    expander.write('''
+        A análise dos serviços oferecidos pelos restaurantes revela insights significativos sobre o comportamento dos consumidores. 
+        Embora a disponibilidade de delivery não demonstre impacto expressivo na nota média dos estabelecimentos, os restaurantes que 
+        oferecem este serviço recebem aproximadamente o dobro de avaliações, proporcionando uma base mais robusta e confiável para a análise 
+        da qualidade do serviço.
+
+        No segmento de reservas, os dados são ainda mais contundentes: estabelecimentos que disponibilizam sistema de reservas não apenas 
+        registram um volume de avaliações superior a 200% em comparação aos demais, como também apresentam uma nota média 5% mais elevada. 
+        Estes indicadores sugerem uma possível correlação entre a oferta deste serviço e a percepção de qualidade pelo cliente.
+                   
+        Destaca-se ainda o caso notável da Domino's Pizza, que lidera o ranking global de volume de avaliações recebidas. Esta posição de destaque 
+        não apenas valida a estratégia operacional da rede, mas também fornece um extenso banco de dados para compreensão da satisfação dos 
+        clientes e aprimoramento contínuo dos serviços.
+                   
+        A análise do mapa de geolocalização revela uma concentração expressiva de restaurantes na Índia e seus países vizinhos, na Ásia e Oriente 
+        Médio. Os Estados Unidos também apresentam um número significativo de estabelecimentos, enquanto o restante do mundo demonstra uma participação
+                   geográfica considerável, apresentando à Zomato muita possibilidade de avanços no mercado global."
+    ''')
+
 with tab2:  # Mapa de geolocalização
     with st.container():# mapa de geolocalização com agrupamento e cores
         st.markdown('#### Geolocalização')
@@ -404,3 +422,4 @@ with tab2:  # Mapa de geolocalização
         folium_static(map, width=1024, height=400)
     ###
     st.markdown(""" --- """)
+

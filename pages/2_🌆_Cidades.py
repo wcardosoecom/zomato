@@ -90,6 +90,8 @@ def best_5_cities (df1, coluna):
     city_mean_best = city_mean_best.groupby('country').head(1)
     city_mean_best = city_mean_best.head(5)
 
+    colors = ['#FF0000', '#CC0000', '#990000', '#660000', '#330000']
+
     if coluna == 'aggregate_rating':
         y_name = 'Nota média'
     else:
@@ -98,15 +100,14 @@ def best_5_cities (df1, coluna):
                 x='city', 
                 y=coluna,
                 labels={'city': 'Cidade', coluna: y_name, 'country': 'País'},
-                color='country')
-    fig.update_traces(marker=dict(color='red'))
+                color='country',
+                color_discrete_sequence=colors)
     fig.update_layout(
         xaxis_title='Cidades',
         yaxis_title=y_name,
         xaxis_tickangle=-45,
         height=600,
         width=500,
-        plot_bgcolor='rgb(175, 175, 175)',
         font_color='white')
     fig.update_traces(hovertemplate='Cidade: %{x}<br>Média: %{y}')
     return fig
@@ -314,3 +315,17 @@ with st.container():
         st.plotly_chart(fig, use_container_width=True)
 ###
 
+with st.container():# Análise da page
+    expander = st.expander("Análises relevantes")
+    expander.write('''
+        Na análise da distribuição geográfica dos serviços, observa-se uma forte concentração de cidades indianas entre as líderes em 
+        volume de entregas, fenômeno que pode ser atribuído à maturidade e consolidação da operação da Zomato em seu mercado de origem. 
+        Em contrapartida, o cenário da diversidade culinária apresenta-se notavelmente democrático, com uma distribuição global equilibrada, 
+        evidenciando centros urbanos de diferentes continentes no topo do ranking.
+        
+        Quanto aos indicadores de qualidade, embora não se verifique uma correlação estatística significativa entre o volume de avaliações 
+        recebidas e as notas médias atribuídas, Londres emerge como um caso notável de excelência. A capital britânica destaca-se por 
+        combinar uma elevada nota média com uma expressiva diversidade gastronômica, sugerindo um mercado maduro que alia qualidade e 
+        variedade em sua oferta culinária.
+    ''')
+    st.markdown(""" --- """)
